@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package
+        Name="CalculatorcplusApp"
+        Manufacturer="Naresh"
+        Version="1.0.0.0"
+        UpgradeCode="12345678-ABCD-4321-ABCD-1234567890BC">
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        <MediaTemplate EmbedCab="yes" />
+
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="CalculatorcplusApp">
+                <Component Id="CalculatorAppcplusExe" Guid="*">
+                    <File Id="CalculatorcplusExe" 
+                          Source="..\build\CMakeProject1\CMakeProject1.exe" 
+                          KeyPath="yes" />
+                </Component>
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="CalculatorcplusApp">
+                <Component Id="StartMenuShortcut" Guid="95F9C0E2-4341-5D70-96AB-0058077345A8">
+                    <Shortcut Id="StartMenuShortcut"
+                            Name="CalculatorAppcplus"
+                            Description="Launch CalculatorAppcplus"
+                            Target="[#CalculatorcplusExe]"
+                            WorkingDirectory="INSTALLFOLDER" />
+                    <RemoveFolder Id="RemoveStartMenuFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+                    <RegistryValue Root="HKCU" 
+                                 Key="Software\CalculatorAppcplus\StartMenu" 
+                                 Name="installed" 
+                                 Type="integer" 
+                                 Value="1" 
+                                 KeyPath="yes" />
+                </Component>
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="DesktopFolder">
+            <Component Id="DesktopShortcut" Guid="6F332E11-8C4D-4B6A-9C32-7A7C0A83A914">
+                <Shortcut Id="DesktopShortcut"
+                        Name="CalculatorAppcplus"
+                        Description="Launch CalculatorAppcplus"
+                        Target="[#CalculatorcplusExe]"
+                        WorkingDirectory="INSTALLFOLDER" />
+                <RegistryValue Root="HKCU" 
+                             Key="Software\CalculatorAppcplus\Desktop" 
+                             Name="installed" 
+                             Type="integer" 
+                             Value="1" 
+                             KeyPath="yes" />
+            </Component>
+        </StandardDirectory>
+
+        <Feature Id="MainFeature" Title="Calculator Application" Level="1">
+            <ComponentRef Id="CalculatorAppcplusExe" />
+            <ComponentRef Id="DesktopShortcut" />
+            <ComponentRef Id="StartMenuShortcut" />
+        </Feature>
+
+    </Package>
+</Wix>
