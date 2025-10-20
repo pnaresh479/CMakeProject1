@@ -2,14 +2,17 @@ pipeline {
     agent { label 'built-in' } // Use the Jenkins controller or specify 'windows' if you have Windows agents
 
     environment {
-        WIX_PATH         = "C:/Program Files (x86)/WiX Toolset v4.0/bin"
-        CMAKE_PATH       = "C:/DevTools/CMake3_39_1/bin"
-        SONARQUBE_SERVER = 'sonarcloud'
-        PROJECT_KEY      = 'CMakeProject1'
-        ORGANIZATION     = 'pnaresh479'
-        BUILD_CONFIG     = 'Release'
-        APP_PATH         = 'CMakeProject1'
-        INSTALLER_PATH   = 'installer'
+        WIX_PATH           = "C:/Program Files (x86)/WiX Toolset v4.0/bin"
+        CMAKE_PATH         = "C:/DevTools/CMake3_39_1/bin"
+        MINJA_PATH         = "C:/DevTools/ninja1_12_1"
+        GCC                = "C:/DevTools/mingw-w64/mingw64/bin"
+        BUILD_WRAPPER_PATH = "C:/DevTools/sonar-cpp-build-wrapper/build-wrapper-win-x86"
+        SONARQUBE_SERVER   = 'sonarcloud'
+        PROJECT_KEY        = 'CMakeProject1'
+        ORGANIZATION       = 'pnaresh479'
+        BUILD_CONFIG       = 'Release'
+        APP_PATH           = 'CMakeProject1'
+        INSTALLER_PATH     = 'installer'
     }
 
     options {
@@ -43,13 +46,37 @@ pipeline {
             }
         }
 
+        stage('verify CMake and Ninja') {
+            steps {
+                echo '🔧 Verifying CMake and Ninja installation...'
+                withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.MINJA_PATH}"]) {
+                    bat '''
+                        cmake --version
+                        ninja --version
+                    '''
+                }
+            }
+        }
+
+        stage('verify Compiler') {
+            steps {
+                echo '🔧 Verifying GCC/G++ installation...'
+                withEnv(["PATH=${env.PATH};${env.GCC}"]) {
+                bat '''
+                    gcc --version
+                '''
+                }
+            }
+        }
+
         stage('Build Application') {
             steps {
                 echo '🏗️ Building the C++ project...'
                 dir("${APP_PATH}") {
-                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH}"]) {
+                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.MINJA_PATH};${env.GCC}"]) {
                     bat '''
-                        cmake -S . -B build -G Ninja
+                        cmake -S . -B build -G Ninja -DCMAKE_COMPILER=gcc -DCMAKE_CXX_COMPILER=gcc
+                        cmake --build build --config Release
                     '''
                     }
                 }
@@ -61,6 +88,7 @@ pipeline {
             steps {
                 echo '🏗️ Generating compile_commands.json for SonarQube CFamily...'
                 dir("${APP_PATH}") {
+                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.MINJA_PATH};${env.BUILD_WRAPPER_PATH};${env.GCC}"]) {
                     bat '''
                         build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
                     '''
