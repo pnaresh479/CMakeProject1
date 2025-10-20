@@ -24,3 +24,6 @@ installer/Product.wixobj
 .DS_Store
 .vs
 Thumbs.db
+sonar-project.properties
+.scannerwork/
+bw-output/
