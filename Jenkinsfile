@@ -98,19 +98,11 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            when { expression { return params.SONAR_SCAN == true } 
+            when { expression { return params.SONAR_SCAN == true } }
             steps {
                 echo '🔍 Running SonarQube analysis...'
                 dir("${APP_PATH}") {
                     withCredentials([string(credentialsId: 'sonarcloud-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        // bat """
-                        //     sonar-scanner ^
-                        //       -Dsonar.token=${SONAR_TOKEN} ^
-                        //       -Dsonar.projectKey=${PROJECT_KEY} ^
-                        //       -Dsonar.organization=${ORGANIZATION} ^
-                        //       -Dsonar.host.url=https://sonarcloud.io ^
-                        //       -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-                        // """
                         script {
                             def sonarCmd = """
                                 sonar-scanner ^
@@ -121,7 +113,6 @@ pipeline {
                                   -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
                             """
                             bat sonarCmd
-                            
                         }
                     }
                 }
