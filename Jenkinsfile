@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         WIX_PATH         = "C:/Program Files (x86)/WiX Toolset v4.0/bin"
+        CMAKE_PATH       = "C:/DevTools/CMake3_39_1/bin"
         SONARQUBE_SERVER = 'sonarcloud'
         PROJECT_KEY      = 'CMakeProject1'
         ORGANIZATION     = 'pnaresh479'
@@ -46,10 +47,12 @@ pipeline {
             steps {
                 echo '🏗️ Building the C++ project...'
                 dir("${APP_PATH}") {
+                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH}"]) {
                     bat '''
                         cmake -S . -B build -G Ninja
                         cmake --build build --config Release
                     '''
+                    }
                 }
             }
         }
