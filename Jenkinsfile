@@ -1,16 +1,14 @@
 pipeline {
-    agent { label 'built-in' }  // Force the pipeline to run on the master node
+    agent { label 'built-in' } // Use the Jenkins controller or specify 'windows' if you have Windows agents
 
     environment {
-        // WiX and Windows SDK tools will be needed on the Windows agent(s)
-        WIFI_PATH = "C:/Program Files (x86)/WiX Toolset v4.0/bin"
+        WIX_PATH         = "C:/Program Files (x86)/WiX Toolset v4.0/bin"
         SONARQUBE_SERVER = 'sonarcloud'
-        PROJECT_KEY = 'CMakeProject1'
-        ORGANIZATION = 'pnaresh479'
-        BUILD_CONFIG = 'Release' 
-        APP_PATH = 'CMakeProject1'
-        INSTALLER_PATH = 'Installer'
-        // SonarQube env vars are provided by Jenkins SonarQube plugin or pipeline credentials
+        PROJECT_KEY      = 'CMakeProject1'
+        ORGANIZATION     = 'pnaresh479'
+        BUILD_CONFIG     = 'Release'
+        APP_PATH         = 'CMakeProject1'
+        INSTALLER_PATH   = 'installer'
     }
 
     options {
@@ -19,9 +17,17 @@ pipeline {
         ansiColor('xterm')
     }
 
+    parameters {
+        booleanParam(name: 'SONAR_SCAN', defaultValue: false, description: 'Run SonarQube scan')
+        booleanParam(name: 'SIGN', defaultValue: false, description: 'Sign installer using provided PFX')
+        booleanParam(name: 'PUBLISH', defaultValue: false, description: 'Publish artifacts after build')
+    }
+
     stages {
-        stage('Clean workspace') {
-            steps { deleteDir() }
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
         }
 
         stage('Checkout') {
@@ -31,106 +37,92 @@ pipeline {
             }
         }
 
-        stage('Install dependencies') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    // Install or prepare any build prerequisites. For a simple C++ project
-                    // we assume cmake and ninja are available on the agents. If not, add
-                    // installer steps here per platform.
-                    echo 'Ensure cmake, ninja and compiler are installed on agents.'
-                }
+                echo 'Ensure CMake, Ninja, and compiler are installed on Windows agents.'
             }
         }
 
-        // stage('Configure & Build') {
-        //     parallel {
-        //         stage('Linux/macOS Build') {
-        //             agent { label 'linux || mac' }
-        //             steps {
-        //                 sh 'cmake -S . -B build -G Ninja'
-        //                 sh 'cmake --build build --config Release'
-        //                 // Optionally run tests here if added
-        //             }
-        //         }
-
-        //         stage('Windows Build') {
-        //             agent { label 'windows' }
-        //             steps {
-        //                 // Use PowerShell for Windows commands
-        //                 powershell 'cmake -S . -B build -G Ninja'
-        //                 powershell 'cmake --build build --config Release'
-        //             }
-        //         }
-        //     }
-        // }
-
         stage('Build Application') {
             steps {
-                echo '🏗️ Building the c++  project...'
+                echo '🏗️ Building the C++ project...'
                 dir("${APP_PATH}") {
-                    // Use PowerShell for Windows commands
-                        powershell 'cmake -S . -B build -G Ninja'
-                        powershell 'cmake --build build --config Release'
-                        powershell 'build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build'
+                    powershell '''
+                        cmake -S . -B build -G Ninja
+                        cmake --build build --config Release
+                    '''
                 }
             }
         }
 
         stage('Build Wrapper for SonarQube') {
+            when { expression { return params.SONAR_SCAN == true } }
             steps {
-                echo '🏗️ Building  warpper compiler comamnds for the c++  project...'
+                echo '🏗️ Generating compile_commands.json for SonarQube CFamily...'
                 dir("${APP_PATH}") {
-                    // Use PowerShell for Windows commands
-                        powershell 'build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build'
+                    powershell '''
+                        build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
+                    '''
                 }
             }
         }
 
         stage('SonarQube Analysis') {
-            when { expression { return env.SONAR_HOST_URL != null || params.SONAR_SCAN == 'true' } }
+            when { expression { return params.SONAR_SCAN == true } }
             steps {
-                script {
-                    // Assumes SonarQube scanner CLI or Jenkins SonarQube plugin is configured
-                    echo 'Running SonarQube analysis (configure SONAR_TOKEN and SONAR_HOST_URL in Jenkins)'
+                echo '🔍 Running SonarQube analysis...'
+                dir("${APP_PATH}") {
                     withCredentials([string(credentialsId: 'sonarcloud-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        // Example using sonar-scanner CLI if available on agent
-                       //sh "sonar-scanner -Dsonar.login=${env.SONAR_TOKEN} -Dsonar.projectKey=${env.PROJECT_KEY}"
-                       bat """
-                          sonar-scanner -Dsonar.token=${env.SONAR_TOKEN} -Dsonar.projectKey=${env.PROJECT_KEY}^
-                           -Dsonar.organization=${env.ORGANIZATION} -Dsonar.host.url=https://sonarcloud.io ^
-                           -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-                          """
+                        bat """
+                            sonar-scanner ^
+                              -Dsonar.token=${SONAR_TOKEN} ^
+                              -Dsonar.projectKey=${PROJECT_KEY} ^
+                              -Dsonar.organization=${ORGANIZATION} ^
+                              -Dsonar.host.url=https://sonarcloud.io ^
+                              -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
+                        """
                     }
                 }
             }
         }
 
         stage('Package (WiX)') {
+            agent { label 'windows' }
             steps {
-                dir('installer') {
-                    // Ensure WiX toolset is on PATH for the Windows agent
-                    withEnv(["PATH=${env.PATH};${WIFI_PATH}"]) {
-                        powershell 'if (-not (Test-Path -Path "calculcatorcplusapp.wxs")) { Write-Error "calculcatorcplusapp.wxs not found in installer/"; exit 1 }
-                                     wix build calculcatorcplusapp.wxs -o CalculatorcplusApp.msi
+                dir("${INSTALLER_PATH}") {
+                    withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
+                        powershell '''
+                            if (-not (Test-Path -Path "calculcatorcplusapp.wxs")) {
+                                Write-Error "calculcatorcplusapp.wxs not found in installer/"
+                                exit 1
+                            }
+                            wix build calculcatorcplusapp.wxs -o calculcatorcplusapp.msi
+                        '''
                     }
                 }
-                stash name: 'installer-msi', includes: 'installer/CalculatorcplusApp.msi'
+                stash name: 'installer-msi', includes: "${INSTALLER_PATH}/calculcatorcplusapp.msi"
             }
         }
 
         stage('Code Sign (Windows)') {
             agent { label 'windows' }
-            when { expression { return params.SIGN == true || env.SIGN_PFX_CREDENTIAL_ID != null } }
+            when { expression { return params.SIGN == true } }
             steps {
                 script {
-                    // Expecting a PFX file uploaded as Jenkins "Secret file" credential
-                    // with id SIGN_PFX and password stored in SIGN_PFX_PASSWORD
                     withCredentials([
                         file(credentialsId: 'SIGN_PFX', variable: 'SIGN_PFX_FILE'),
                         string(credentialsId: 'SIGN_PFX_PASSWORD', variable: 'SIGN_PFX_PASSWORD')
                     ]) {
                         unstash 'installer-msi'
-                        powershell "& $env:ProgramFiles\\Windows Kits\\10\\bin\\x64\\signtool.exe sign /f ${SIGN_PFX_FILE} /p ${SIGN_PFX_PASSWORD} /tr http://timestamp.digicert.com /td sha256 /fd sha256 installer\\CalculatorInstaller.msi"
+                        powershell """
+                            & "$env:ProgramFiles\\Windows Kits\\10\\bin\\x64\\signtool.exe" sign `
+                                /f "${SIGN_PFX_FILE}" `
+                                /p "${SIGN_PFX_PASSWORD}" `
+                                /tr http://timestamp.digicert.com `
+                                /td sha256 `
+                                /fd sha256 `
+                                "${INSTALLER_PATH}\\CalculatorApp.msi"
+                        """
                     }
                 }
             }
@@ -139,20 +131,14 @@ pipeline {
         stage('Archive') {
             steps {
                 unstash 'installer-msi'
-                archiveArtifacts artifacts: 'installer/CalculatorcplusApp.msi', fingerprint: true
+                archiveArtifacts artifacts: "${INSTALLER_PATH}/CalculatorApp.msi", fingerprint: true
             }
         }
 
-        stage('Publish (optional)') {
+        stage('Publish (Optional)') {
+            when { expression { return params.PUBLISH == true } }
             steps {
-                script {
-                    if (params.PUBLISH == true) {
-                        echo 'Publishing artifacts to configured repository or storage. Implement as needed.'
-                        // Add publishing steps: upload to artifact server, S3, Nexus, etc.
-                    } else {
-                        echo 'Publish skipped (PUBLISH param not set)'
-                    }
-                }
+                echo 'Publishing artifacts to configured repository or storage (add upload logic here).'
             }
         }
     }
@@ -163,16 +149,10 @@ pipeline {
             cleanWs()
         }
         success {
-            echo 'Build completed successfully.'
+            echo '✅ Build completed successfully.'
         }
         failure {
-            echo 'Build failed. See logs.'
+            echo '❌ Build failed. See logs for details.'
         }
-    }
-
-    parameters {
-        booleanParam(defaultValue: false, description: 'Run SonarQube scan', name: 'SONAR_SCAN')
-        booleanParam(defaultValue: false, description: 'Sign installer using provided PFX', name: 'SIGN')
-        booleanParam(defaultValue: false, description: 'Publish artifacts after build', name: 'PUBLISH')
     }
 }
