@@ -46,7 +46,7 @@ pipeline {
             steps {
                 echo '🏗️ Building the C++ project...'
                 dir("${APP_PATH}") {
-                    powershell '''
+                    bat '''
                         cmake -S . -B build -G Ninja
                         cmake --build build --config Release
                     '''
@@ -59,7 +59,7 @@ pipeline {
             steps {
                 echo '🏗️ Generating compile_commands.json for SonarQube CFamily...'
                 dir("${APP_PATH}") {
-                    powershell '''
+                    bat '''
                         build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
                     '''
                 }
@@ -72,14 +72,14 @@ pipeline {
                 echo '🔍 Running SonarQube analysis...'
                 dir("${APP_PATH}") {
                     withCredentials([string(credentialsId: 'sonarcloud-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        bat """
+                        bat '''
                             sonar-scanner ^
                               -Dsonar.token=${SONAR_TOKEN} ^
                               -Dsonar.projectKey=${PROJECT_KEY} ^
                               -Dsonar.organization=${ORGANIZATION} ^
                               -Dsonar.host.url=https://sonarcloud.io ^
                               -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-                        """
+                        '''
                     }
                 }
             }
@@ -90,7 +90,7 @@ pipeline {
             steps {
                 dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
-                        powershell '''
+                        bat '''
                             if (-not (Test-Path -Path "calculcatorcplusapp.wxs")) {
                                 Write-Error "calculcatorcplusapp.wxs not found in installer/"
                                 exit 1
@@ -120,7 +120,7 @@ pipeline {
                                 /tr http://timestamp.digicert.com `
                                 /td sha256 `
                                 /fd sha256 `
-                                "${INSTALLER_PATH}\\CalculatorApp.msi"
+                                "${INSTALLER_PATH}\\calculcatorcplusapp.msi"
                         """
                     }
                 }
@@ -130,7 +130,7 @@ pipeline {
         stage('Archive') {
             steps {
                 unstash 'installer-msi'
-                archiveArtifacts artifacts: "${INSTALLER_PATH}/CalculatorApp.msi", fingerprint: true
+                archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
             }
         }
 
