@@ -103,14 +103,14 @@ pipeline {
                 echo '🔍 Running SonarQube analysis...'
                 dir("${APP_PATH}") {
                     withCredentials([string(credentialsId: 'sonarcloud-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        bat '''
+                        bat """
                             sonar-scanner ^
                               -Dsonar.token=${SONAR_TOKEN} ^
                               -Dsonar.projectKey=${PROJECT_KEY} ^
                               -Dsonar.organization=${ORGANIZATION} ^
                               -Dsonar.host.url=https://sonarcloud.io ^
                               -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-                        '''
+                        """
                     }
                 }
             }
