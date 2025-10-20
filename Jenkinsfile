@@ -125,11 +125,8 @@ pipeline {
                 dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
                         bat '''
-                            if (-not (Test-Path -Path "calculcatorcplusapp.wxs")) {
-                                Write-Error "calculcatorcplusapp.wxs not found in installer/"
-                                exit 1
-                            }
-                            wix build calculcatorcplusapp.wxs -o calculcatorcplusapp.msi
+                            powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+                            "wix build calculcatorcplusapp.wxs -o calculcatorcplusapp.msi"
                         '''
                     }
                 }
