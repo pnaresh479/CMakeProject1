@@ -50,7 +50,6 @@ pipeline {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH}"]) {
                     bat '''
                         cmake -S . -B build -G Ninja
-                        cmake --build build --config Release
                     '''
                     }
                 }
