@@ -120,7 +120,7 @@ pipeline {
         }
 
         stage('Package (WiX)') {
-            agent { label 'windows' }
+            agent { label 'built-in' }
             steps {
                 dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
@@ -138,7 +138,7 @@ pipeline {
         }
 
         stage('Code Sign (Windows)') {
-            agent { label 'windows' }
+            agent { label 'built-in' }
             when { expression { return params.SIGN == true } }
             steps {
                 script {
