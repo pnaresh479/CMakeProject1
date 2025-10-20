@@ -92,6 +92,7 @@ pipeline {
                     bat '''
                         build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
                     '''
+                    }
                 }
             }
         }
