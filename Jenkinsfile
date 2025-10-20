@@ -119,6 +119,15 @@ pipeline {
             }
         }
 
+        stage('Display Build Artifacts') {
+            steps {
+                echo '📂 Displaying build artifacts...'
+                dir("${APP_PATH}/build/CMakeProject1/Release") {
+                    bat 'dir'
+                }
+            }
+        }
+
         stage('Package (WiX)') {
             agent { label 'built-in' }
             steps {
