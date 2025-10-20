@@ -2,7 +2,7 @@ pipeline {
     agent { label 'built-in' } // Use the Jenkins controller or specify 'windows' if you have Windows agents
 
     environment {
-        WIX_PATH           = "%USERPROFILE%/.dotnet/tools"
+        WIX_PATH           = "C:/users/admin/.dotnet/tools"
         CMAKE_PATH         = "C:/DevTools/CMake3_39_1/bin"
         MINJA_PATH         = "C:/DevTools/ninja1_12_1"
         GCC                = "C:/DevTools/mingw-w64/mingw64/bin"
