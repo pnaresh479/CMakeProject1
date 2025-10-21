@@ -12,7 +12,7 @@
       <Directory Id="INSTALLFOLDER" Name="CalculatorCppApp">
         <Component Id="CalculatorAppExe" Guid="95F9C0E2-4341-5D70-96AB-0058077345A8">
           <File Id="CalculatorExe" 
-                Source="$(var.BuildDir)\CMakeProject1.exe" 
+                Source="$(var.CPP_BUILD_DIR)\CMakeProject1.exe" 
                 KeyPath="yes" />
         </Component>
       </Directory>
