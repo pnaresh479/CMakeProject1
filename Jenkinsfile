@@ -161,7 +161,7 @@ pipeline {
                 // dir("${INSTALLER_PATH}") {
                 withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
                     bat '''
-                        wix build -src %WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.wxs  -o %WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.msi"
+                        wix build -src %WORKSPACE%/CMakeProject1/calculcatorcplusapp.wxs  -o %WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.msi"
                     '''
                 }
                 // }
