@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
-  <Package Name="CalculatorCppApp"
-           Manufacturer="NareshCpp"
-           Version="1.0.0"
-           UpgradeCode="6F332E11-8C4D-4B6A-9C32-7A7C0A83A914" />
-
-  <MediaTemplate />
-
-  <Feature Id="ProductFeature" Title="CalculatorCppApp" Level="1">
-    <ComponentGroupRef Id="ProductComponents" />
-  </Feature>
+  <Fragment>
+    <Package Name="CalculatorCppApp"
+             Manufacturer="NareshCpp"
+             Version="1.0.0"
+             UpgradeCode="6F332E11-8C4D-4B6A-9C32-7A7C0A83A914">
+      <MediaTemplate />
+      <Feature Id="ProductFeature" Title="CalculatorCppApp" Level="1">
+        <ComponentGroupRef Id="ProductComponents" />
+      </Feature>
+    </Package>
+  </Fragment>
 
   <Fragment>
     <StandardDirectory Id="ProgramFiles64Folder">
