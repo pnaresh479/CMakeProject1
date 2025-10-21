@@ -86,6 +86,14 @@ pipeline {
             }
         }
 
+        stage('Display Jenkins workspace') {
+            steps {
+                echo ' Displaying Jenkins workspace structure...'
+                bat 'dir /s'
+                echo 'curretnt working directory is :' + %CD%
+            }
+        }
+
         stage('Build Wrapper for SonarQube') {
             when { expression { return params.SONAR_SCAN == true } }
             steps {
