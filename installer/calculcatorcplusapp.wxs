@@ -13,7 +13,7 @@
             <Directory Id="INSTALLFOLDER" Name="CalculatorcplusApp">
                 <Component Id="CalculatorAppcplusExe" Guid="*">
                     <File Id="CalculatorcplusExe" 
-                          Source="..\CMakeProject1\build\CMakeProject1.exe" 
+                          Source="..\\CMakeProject1\build\\CMakeProject1.exe" 
                           KeyPath="yes" />
                 </Component>
             </Directory>
