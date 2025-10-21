@@ -4,7 +4,7 @@ pipeline {
     environment {
         WIX_PATH           = "C:/users/admin/.dotnet/tools"
         CMAKE_PATH         = "C:/DevTools/CMake3_39_1/bin"
-        MINJA_PATH         = "C:/DevTools/ninja1_12_1"
+        NNJA_PATH         = "C:/DevTools/ninja1_12_1"
         GCC                = "C:/DevTools/mingw-w64/mingw64/bin"
         BUILD_WRAPPER_PATH = "C:/DevTools/sonar-cpp-build-wrapper/build-wrapper-win-x86"
         SONARQUBE_SERVER   = 'sonarcloud'
@@ -13,6 +13,7 @@ pipeline {
         BUILD_CONFIG       = 'Release'
         APP_PATH           = 'CMakeProject1'
         INSTALLER_PATH     = 'installer'
+        SONAR_CLI_PATH     = "C:/DevTools/sonar-cli/sonar-scanner-7.2.0.5079-windows-x64/bin"
     }
 
     options {
@@ -49,7 +50,7 @@ pipeline {
         stage('verify CMake and Ninja') {
             steps {
                 echo '🔧 Verifying CMake and Ninja installation...'
-                withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.MINJA_PATH}"]) {
+                withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH}"]) {
                     bat '''
                         cmake --version
                         ninja --version
@@ -73,7 +74,7 @@ pipeline {
             steps {
                 echo '🏗️ Building the C++ project...'
                 dir("${APP_PATH}") {
-                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.MINJA_PATH};${env.GCC}"]) {
+                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC}"]) {
                     bat '''
                         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
                         cmake --build build --config Release
@@ -88,7 +89,7 @@ pipeline {
             steps {
                 echo '🏗️ Generating compile_commands.json for SonarQube CFamily...'
                 dir("${APP_PATH}") {
-                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.MINJA_PATH};${env.BUILD_WRAPPER_PATH};${env.GCC}"]) {
+                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.BUILD_WRAPPER_PATH};${env.GCC}"]) {
                     bat '''
                         build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
                     '''
@@ -103,16 +104,19 @@ pipeline {
                 echo '🔍 Running SonarQube analysis...'
                 dir("${APP_PATH}") {
                     withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
-                        script {
-                            def sonarCmd = """
-                                sonar-scanner ^
-                                  -Dsonar.token=${SONAR_TOKEN} ^
-                                  -Dsonar.projectKey=${PROJECT_KEY} ^
-                                  -Dsonar.organization=${ORGANIZATION} ^
-                                  -Dsonar.host.url=https://sonarcloud.io ^
-                                  -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
-                            """
-                            bat sonarCmd
+                        withEnv(["PATH=${env.PATH};${env.SONAR_CLI_PATH}"]) {
+                            script {
+                                def sonarclipath = "${env.SONAR_CLI_PATH}/sonar-scanner.bat"
+                                def sonarCmd = """
+                                    "${sonarclipath}" ^
+                                    -Dsonar.token=${SONAR_TOKEN} ^
+                                    -Dsonar.projectKey=${PROJECT_KEY} ^
+                                    -Dsonar.organization=${ORGANIZATION} ^
+                                    -Dsonar.host.url=https://sonarcloud.io ^
+                                    -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
+                                """
+                                bat sonarCmd
+                            }
                         }
                     }
                 }
