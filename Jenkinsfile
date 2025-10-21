@@ -89,8 +89,12 @@ pipeline {
         stage('Display Jenkins workspace') {
             steps {
                 echo ' Displaying Jenkins workspace structure...'
-                bat 'dir /s'
-                echo 'curretnt working directory is :' + %CD%
+                bat '''
+                    echo Current working directory is: %CD%
+                    echo.
+                    echo Directory structure:
+                    dir /s
+                '''
             }
         }
 
