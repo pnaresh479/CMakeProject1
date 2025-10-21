@@ -158,14 +158,14 @@ pipeline {
         stage('Package (WiX)') {
             agent { label 'built-in' }
             steps {
-                dir("${INSTALLER_PATH}") {
-                    withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
-                        bat '''
-                            wix build calculcatorcplusapp.wxs -d:CPP-BUILD-DIR-PATH="${env.WORKSPACE}\\build" -o calculcatorcplusapp.msi"
-                        '''
-                    }
+                // dir("${INSTALLER_PATH}") {
+                withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
+                    bat '''
+                        wix build -src %WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.wxs  -o %WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.msi"
+                    '''
                 }
-                stash name: 'installer-msi', includes: "${INSTALLER_PATH}/calculcatorcplusapp.msi"
+                // }
+                stash name: 'installer-msi', includes: "%WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.msi"
             }
         }
 
@@ -193,12 +193,12 @@ pipeline {
             }
         }
 
-        stage('Archive') {
-            steps {
-                unstash 'installer-msi'
-                archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
-            }
-        }
+        // stage('Archive') {
+        //     steps {
+        //         unstash 'installer-msi'
+        //         archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
+        //     }
+        // }
 
         stage('Publish (Optional)') {
             when { expression { return params.PUBLISH == true } }
@@ -211,7 +211,7 @@ pipeline {
     post {
         always {
             junit allowEmptyResults: true, testResults: 'build/**/TestResults/*.xml'
-            cleanWs()
+            // cleanWs()
         }
         success {
             echo '✅ Build completed successfully.'
