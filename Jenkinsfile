@@ -90,8 +90,7 @@ pipeline {
             steps {
                 echo ' Displaying Jenkins workspace structure...'
                 bat '''
-                    echo Current working directory is: %CD%
-                    echo.
+                    echo 'Current working directory is:' + %CD%
                     echo Directory structure:
                     dir /s
                 '''
