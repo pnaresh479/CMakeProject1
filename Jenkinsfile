@@ -160,7 +160,12 @@ pipeline {
             agent { label 'built-in' }
             steps {
                 // Ensure the output directory exists
-                unstash 'cpp-build-output'
+                script {
+                    echo '📦 Packaging application into MSI installer using WiX...'
+                    echo 'unstashing previous step output here...'
+                    unstash 'cpp-build-output'
+                }
+                
                 bat '''
                     if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
                 '''
