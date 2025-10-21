@@ -6,7 +6,7 @@
            Version="1.0.0"
            UpgradeCode="6F332E11-8C4D-4B6A-9C32-7A7C0A83A914">
 
-    <Package InstallerVersion="500" Compressed="yes" />
+    <Package InstallerVersion="500" Compressed="yes"/>
 
     <MediaTemplate EmbedCab="yes"/>
 
