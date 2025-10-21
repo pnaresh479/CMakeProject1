@@ -179,7 +179,7 @@ pipeline {
                         echo "Current directory: %CD%"
                         echo "Checking source exe exists..."
                         dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"
-                        
+                        dotnet clean installer\\CalculatorApp.wixproj
                         dotnet build installer\\CalculatorApp.wixproj -c Release
                     '''
                 }
