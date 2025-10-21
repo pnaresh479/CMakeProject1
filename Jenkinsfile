@@ -77,7 +77,7 @@ pipeline {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC}"]) {
                     bat '''
                         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
-                        cmake --build build --config Release
+                        cmake --build build --clean-first --config Release
                     '''
                     }
                 }
