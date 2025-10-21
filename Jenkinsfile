@@ -76,10 +76,20 @@ pipeline {
                 dir("${APP_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC}"]) {
                     bat '''
-                        rmdir /s /q build
+                        echo cleaning build directory...
+                        if exist build rmdir /s /q build
+
+                        echo creating build directory...
                         mkdir build
+
+                        echo Running CMake configuration...
                         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+
+                        echo performing clean build...
                         cmake --build build --clean-first --config Release
+
+                        echo "APP_PATH is ${APP_PATH}"
+                        dir /s /b
                     '''
                     }
                 }
