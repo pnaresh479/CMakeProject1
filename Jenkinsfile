@@ -158,14 +158,24 @@ pipeline {
         stage('Package (WiX)') {
             agent { label 'built-in' }
             steps {
-                // dir("${INSTALLER_PATH}") {
+                // Ensure the output directory exists
+                bat '''
+                    if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
+                '''
+                
+                // Run WiX build from the workspace root so relative paths work correctly
                 withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
                     bat '''
-                        wix build -src %WORKSPACE%/installer/calculcatorcplusapp.wxs  -o %WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.msi"
+                        echo "Building MSI installer..."
+                        echo "Current directory: %CD%"
+                        echo "Checking source exe exists..."
+                        dir "%WORKSPACE%\\%APP_PATH%\\build\\CMakeProject1\\Release\\*.exe"
+                        
+                        wix build -src "%WORKSPACE%\\installer\\calculcatorcplusapp.wxs" -o "%WORKSPACE%\\installer\\calculcatorcplusapp.msi"
                     '''
                 }
-                // }
-                stash name: 'installer-msi', includes: "%WORKSPACE%/CMakeProject1/installer/calculcatorcplusapp.msi"
+                
+                stash name: 'installer-msi', includes: 'installer/calculcatorcplusapp.msi'
             }
         }
 
