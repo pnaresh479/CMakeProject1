@@ -91,9 +91,9 @@ pipeline {
                         echo "APP_PATH is ${APP_PATH}"
                         dir /s /b
                     '''
-                    stash name: 'cpp-build-output', includes: 'CMakeProject1/build/**'
                     }
                 }
+                stash name: 'cpp-build-output', includes: 'CMakeProject1/build/**'
             }
         }
 
