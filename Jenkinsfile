@@ -122,30 +122,30 @@ pipeline {
         //     }
         // }
 
-        stage('SonarQube Analysis') {
-            when { expression { return params.SONAR_SCAN == true } }
-            steps {
-                echo '🔍 Running SonarQube analysis...'
-                dir("${APP_PATH}") {
-                    withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
-                        withEnv(["PATH=${env.PATH};${env.SONAR_CLI_PATH}"]) {
-                            script {
-                                def sonarclipath = "${env.SONAR_CLI_PATH}/sonar-scanner.bat"
-                                def sonarCmd = """
-                                    "${sonarclipath}" ^
-                                    -Dsonar.token=${SONAR_TOKEN} ^
-                                    -Dsonar.projectKey=${PROJECT_KEY} ^
-                                    -Dsonar.organization=${ORGANIZATION} ^
-                                    -Dsonar.host.url=https://sonarcloud.io ^
-                                    -Dsonar.cfamily.compile-commands=build/compile_commands.json
-                                """
-                                bat sonarCmd
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     when { expression { return params.SONAR_SCAN == true } }
+        //     steps {
+        //         echo '🔍 Running SonarQube analysis...'
+        //         dir("${APP_PATH}") {
+        //             withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
+        //                 withEnv(["PATH=${env.PATH};${env.SONAR_CLI_PATH}"]) {
+        //                     script {
+        //                         def sonarclipath = "${env.SONAR_CLI_PATH}/sonar-scanner.bat"
+        //                         def sonarCmd = """
+        //                             "${sonarclipath}" ^
+        //                             -Dsonar.token=${SONAR_TOKEN} ^
+        //                             -Dsonar.projectKey=${PROJECT_KEY} ^
+        //                             -Dsonar.organization=${ORGANIZATION} ^
+        //                             -Dsonar.host.url=https://sonarcloud.io ^
+        //                             -Dsonar.cfamily.compile-commands=build/compile_commands.json
+        //                         """
+        //                         bat sonarCmd
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Display Build Artifacts') {
             steps {
