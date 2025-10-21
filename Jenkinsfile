@@ -169,7 +169,7 @@ pipeline {
                         echo "Building MSI installer..."
                         echo "Current directory: %CD%"
                         echo "Checking source exe exists..."
-                        dir "%WORKSPACE%\\%APP_PATH%\\build\\CMakeProject1\\Release\\*.exe"
+                        dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"
                         
                         wix build -src "%WORKSPACE%\\installer\\calculcatorcplusapp.wxs" -o "%WORKSPACE%\\installer\\calculcatorcplusapp.msi"
                     '''
