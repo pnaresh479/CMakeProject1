@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Product.wxs" />
+    <Compile Include="product.wxs" />
+    <Compile Include="main.wxs" />
   </ItemGroup>
 
 </Project>
