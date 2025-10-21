@@ -74,7 +74,7 @@ pipeline {
             steps {
                 echo '🏗️ Building the C++ project...'
                 dir("${APP_PATH}") {
-                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC}"]) {
+                    withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC};${env.BUILD_WRAPPER_PATH}"]) {
                     bat '''
                         echo cleaning build directory...
                         if exist build rmdir /s /q build
