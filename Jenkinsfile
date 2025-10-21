@@ -91,6 +91,7 @@ pipeline {
                         echo "APP_PATH is ${APP_PATH}"
                         dir /s /b
                     '''
+                    stash name: 'cpp-build-output', includes: 'CMakeProject1/build/**'
                     }
                 }
             }
@@ -159,6 +160,7 @@ pipeline {
             agent { label 'built-in' }
             steps {
                 // Ensure the output directory exists
+                unstash 'cpp-build-output'
                 bat '''
                     if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
                 '''
