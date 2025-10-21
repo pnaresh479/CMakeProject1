@@ -180,7 +180,7 @@ pipeline {
                         echo "Checking source exe exists..."
                         dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"
                         
-                        dotnet build installer\\CalculatorApp.wixproj -c Release
+                        dotnet build installer\\CalculatorApp.wixproj -c Release -p:BuildDir="%WORKSPACE%\\CMakeProject1\\build" -p:OutputPath="%WORKSPACE%\\installer\\bin\\Release"
                     '''
                 }
                 
