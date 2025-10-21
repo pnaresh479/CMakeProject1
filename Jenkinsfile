@@ -86,7 +86,7 @@ pipeline {
                         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
                         echo performing clean build...
-                        build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build --config Release
+                        build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
 
                         echo "APP_PATH is ${APP_PATH}"
                         dir /s /b
