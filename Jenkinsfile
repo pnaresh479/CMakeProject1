@@ -14,6 +14,7 @@ pipeline {
         APP_PATH           = 'CMakeProject1'
         INSTALLER_PATH     = 'installer'
         SONAR_CLI_PATH     = "C:/DevTools/sonar-cli/sonar-scanner-7.2.0.5079-windows-x64/bin"
+        DOTNET_PATH        = "C:/Program Files/dotnet/dotnet.exe"
     }
 
     options {
@@ -172,14 +173,13 @@ pipeline {
                 bat 'dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"'
                 
                 // Run WiX build from the workspace root so relative paths work correctly
-                withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
+                withEnv(["PATH=${env.PATH};${env.WIX_PATH};${env.DOTNET_PATH}"]) {
                     bat '''
                         echo "Building MSI installer..."
                         echo "Current directory: %CD%"
                         echo "Checking source exe exists..."
                         dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"
                         
-                        echo"wix build -src "%WORKSPACE%\\installer\\calculcatorcplusapp.wxs" -d:CPP_BUILD_DIR="%WORKSPACE%\\CMakeProject1\\build" -o "%WORKSPACE%\\installer\\calculcatorcplusapp.msi""
                         dotnet build installer\\CalculatorApp.wixproj -c Release
                     '''
                 }
