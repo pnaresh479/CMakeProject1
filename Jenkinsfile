@@ -96,16 +96,16 @@ pipeline {
             }
         }
 
-        // stage('Display Jenkins workspace') {
-        //     steps {
-        //         echo ' Displaying Jenkins workspace structure...'
-        //         bat '''
-        //             echo 'Current working directory is:' + %CD%
-        //             echo Directory structure:
-        //             dir /s
-        //         '''
-        //     }
-        // }
+        stage('Display Jenkins workspace') {
+            steps {
+                echo ' Displaying Jenkins workspace structure...'
+                bat '''
+                    echo 'Current working directory is:' + %CD%
+                    echo Directory structure:
+                    dir /s
+                '''
+            }
+        }
 
         // stage('Build Wrapper for SonarQube') {
         //     when { expression { return params.SONAR_SCAN == true } }
@@ -161,8 +161,7 @@ pipeline {
                 dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
                         bat '''
-                            powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-                            "wix build calculcatorcplusapp.wxs -d:CPP-BUILD-DIR-PATH="${env.WORKSPACE}\\build" -o calculcatorcplusapp.msi"
+                            wix build calculcatorcplusapp.wxs -d:CPP-BUILD-DIR-PATH="${env.WORKSPACE}\\build" -o calculcatorcplusapp.msi"
                         '''
                     }
                 }
