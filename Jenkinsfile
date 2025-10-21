@@ -179,11 +179,12 @@ pipeline {
                         echo "Checking source exe exists..."
                         dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"
                         
-                        wix build -src "%WORKSPACE%\\installer\\calculcatorcplusapp.wxs" -d:CPP_BUILD_DIR="%WORKSPACE%\\CMakeProject1\\build" -o "%WORKSPACE%\\installer\\calculcatorcplusapp.msi"
+                        echo"wix build -src "%WORKSPACE%\\installer\\calculcatorcplusapp.wxs" -d:CPP_BUILD_DIR="%WORKSPACE%\\CMakeProject1\\build" -o "%WORKSPACE%\\installer\\calculcatorcplusapp.msi""
+                        dotnet build installer\\CalculatorApp.wixproj -c Release
                     '''
                 }
                 
-                stash name: 'installer-msi', includes: 'installer/calculcatorcplusapp.msi'
+                stash name: 'installer-msi', includes: 'installer/bin/Release/calculatorCppApp.msi'
             }
         }
 

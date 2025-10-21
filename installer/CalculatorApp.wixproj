@@ -1,0 +1,14 @@
+<Project Sdk="WixToolset.Sdk/6.0.0">
+
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>CalculatorCppApp</OutputName>
+    <Platform>x64</Platform>
+    <DefineConstants>CPP_BUILD_DIR=$(MSBuildProjectDirectory)\..\build</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+
+</Project>
