@@ -114,6 +114,8 @@ pipeline {
                 dir("${APP_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.BUILD_WRAPPER_PATH};${env.GCC}"]) {
                     bat '''
+                        echo env.workspace is ${env.WORKSPACE}
+                        cd CMakeProject1
                         build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
                     '''
                     }
