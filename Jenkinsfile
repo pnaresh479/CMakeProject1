@@ -76,6 +76,8 @@ pipeline {
                 dir("${APP_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC}"]) {
                     bat '''
+                        rmdir /s /q build
+                        mkdir build
                         cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
                         cmake --build build --clean-first --config Release
                     '''
@@ -139,7 +141,7 @@ pipeline {
                     withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
                         bat '''
                             powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-                            "wix build calculcatorcplusapp.wxs -o calculcatorcplusapp.msi"
+                            "wix build calculcatorcplusapp.wxs -d:CPP-BUILD-DIR-PATH="${env.WORKSPACE}\\build" -o calculcatorcplusapp.msi"
                         '''
                     }
                 }
