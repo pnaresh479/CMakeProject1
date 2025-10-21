@@ -76,6 +76,7 @@ pipeline {
                 dir("${APP_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC}"]) {
                     bat '''
+                        cd CMakeProject1
                         echo cleaning build directory...
                         if exist build rmdir /s /q build
 
@@ -114,6 +115,7 @@ pipeline {
                 dir("${APP_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.BUILD_WRAPPER_PATH};${env.GCC}"]) {
                     bat '''
+                        cd CMakeProject1
                         build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
                     '''
                     }
