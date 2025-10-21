@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
-  <Product Name="CalculatorCppApp"
-           Manufacturer="NareshCpp"
-           Version="1.0.0"
-           UpgradeCode="6F332E11-8C4D-4B6A-9C32-7A7C0A83A914">
+  <Fragment>
+    <PackageGroup Id="CalculatorPackage">
+      <Package InstallerVersion="500" Compressed="yes" />
+    </PackageGroup>
 
-    <Package InstallerVersion="500" Compressed="yes"/>
-
-    <MediaTemplate EmbedCab="yes"/>
-
-    <StandardDirectory Id="ProgramFiles64Folder">
+    <DirectoryRef Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="CalculatorCppApp">
         <Component Id="CalculatorAppExe" Guid="95F9C0E2-4341-5D70-96AB-0058077345A8">
           <File Id="CalculatorExe" 
@@ -18,12 +14,26 @@
                 KeyPath="yes" />
         </Component>
       </Directory>
-    </StandardDirectory>
+    </DirectoryRef>
 
-    <Feature Id="ProductFeature" Title="CalculatorCppApp" Level="1">
+    <ComponentGroup Id="CalculatorComponents">
       <ComponentRef Id="CalculatorAppExe" />
-    </Feature>
+    </ComponentGroup>
+  </Fragment>
 
-  </Product>
+  <Fragment>
+    <Product Name="CalculatorCppApp"
+             Manufacturer="NareshCpp"
+             Version="1.0.0"
+             Language="1033"
+             UpgradeCode="6F332E11-8C4D-4B6A-9C32-7A7C0A83A914">
+
+      <PackageGroupRef Id="CalculatorPackage" />
+      <Feature Id="ProductFeature" Title="CalculatorCppApp" Level="1">
+        <ComponentGroupRef Id="CalculatorComponents" />
+      </Feature>
+
+    </Product>
+  </Fragment>
 
 </Wix>
