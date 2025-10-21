@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Compile Include="product.wxs" />
-    <Compile Include="main.wxs" />
   </ItemGroup>
 
 </Project>
