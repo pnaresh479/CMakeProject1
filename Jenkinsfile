@@ -136,7 +136,7 @@ pipeline {
                                     -Dsonar.projectKey=${PROJECT_KEY} ^
                                     -Dsonar.organization=${ORGANIZATION} ^
                                     -Dsonar.host.url=https://sonarcloud.io ^
-                                    -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json
+                                    -Dsonar.cfamily.compile-commands=build/compile_commands.json
                                 """
                                 bat sonarCmd
                             }
