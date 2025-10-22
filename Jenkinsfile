@@ -157,6 +157,27 @@ pipeline {
             }
         }
 
+        stage('Binary copy') {
+            agent { label 'built-in' }
+            steps {
+                // Ensure the output directory exists
+                script {
+                    echo '📦 Packaging application into MSI installer using WiX...'
+                    echo 'unstashing previous step output here...'
+                    unstash 'cpp-build-output'
+                }
+                
+                bat '''
+                    if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
+                '''
+                bat 'dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"'
+                bat 'copy %WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe %WORKSPACE%\\installer\CMakeProject1.exe'
+                
+                // Run WiX build from the workspace root so relative paths work correctly
+               
+            }
+        }
+
         stage('Package (WiX)') {
             agent { label 'built-in' }
             steps {
@@ -178,13 +199,11 @@ pipeline {
                         echo "Building MSI installer..."
                         echo "Current directory: %CD%"
                         echo "Checking source exe exists..."
-                        dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"
-                        dotnet clean installer\\CalculatorApp.wixproj
-                        dotnet build installer\\CalculatorApp.wixproj -c Release
+                        wix build -src %WORKSPACE%/installer/product.wxs  -o %WORKSPACE%/installer/calculatorCppApp.msi"
                     '''
                 }
                 
-                stash name: 'installer-msi', includes: 'installer/bin/Release/calculatorCppApp.msi'
+                stash name: 'installer-msi', includes: 'installer/calculatorCppApp.msi'
             }
         }
 
