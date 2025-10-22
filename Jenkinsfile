@@ -233,7 +233,7 @@ pipeline {
                                 /tr http://timestamp.digicert.com `
                                 /td sha256 `
                                 /fd sha256 `
-                                "${INSTALLER_PATH}\\calculcatorcplusapp.msi"
+                                "${INSTALLER_PATH}\\calculatorCppApp.msi"
                         """
                     }
                 }
@@ -246,6 +246,15 @@ pipeline {
         //         archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
         //     }
         // }
+
+        stage('Archive Artifacts') {
+            steps {
+                echo '🗄️ Archiving installer output...'
+                dir("${INSTALLER_PATH}") {
+                    archiveArtifacts artifacts: 'calculatorCppApp.msi', fingerprint: true
+                }
+            }
+        }
 
         stage('Publish (Optional)') {
             when { expression { return params.PUBLISH == true } }
