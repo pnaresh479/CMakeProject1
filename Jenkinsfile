@@ -171,7 +171,7 @@ pipeline {
                     if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
                 '''
                 bat 'dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"'
-                bat 'copy %WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe %WORKSPACE%\\installer\CMakeProject1.exe'
+                bat 'copy %WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe %WORKSPACE%\\installer\\CMakeProject1.exe'
                 
                 // Run WiX build from the workspace root so relative paths work correctly
                
