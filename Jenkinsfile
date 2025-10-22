@@ -251,7 +251,7 @@ pipeline {
             steps {
                 echo '🗄️ Archiving installer output...'
                 // dir("${INSTALLER_PATH}") {
-                archiveArtifacts artifacts: 'installer/calculatorCppApp.msi', fingerprint: true
+                archiveArtifacts artifacts: 'installer/*.msi', fingerprint: true
                 // }
             }
         }
