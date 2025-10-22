@@ -187,21 +187,29 @@ pipeline {
                     echo 'unstashing previous step output here...'
                     unstash 'cpp-build-output'
                 }
-                
-                bat '''
-                    if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
-                '''
-                bat 'dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"'
-                
-                // Run WiX build from the workspace root so relative paths work correctly
-                withEnv(["PATH=${env.PATH};${env.WIX_PATH};${env.DOTNET_PATH}"]) {
-                    bat '''
-                        echo "Building MSI installer..."
-                        echo "Current directory: %CD%"
-                        echo "Checking source exe exists..."
-                        wix build -src %WORKSPACE%/installer/product.wxs  -o %WORKSPACE%/installer/calculatorCppApp.msi"
-                    '''
+                directory('installer') {
+                    withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
+                        bat '''
+                            dir
+                            wix build product.wxs  -o calculatorCppApp.msi"
+                        '''
+                    }
                 }
+                
+                // bat '''
+                //     if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
+                // '''
+                // bat 'dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"'
+                
+                // // Run WiX build from the workspace root so relative paths work correctly
+                // withEnv(["PATH=${env.PATH};${env.WIX_PATH};${env.DOTNET_PATH}"]) {
+                //     bat '''
+                //         echo "Building MSI installer..."
+                //         echo "Current directory: %CD%"
+                //         echo "Checking source exe exists..."
+                //         wix build -src %WORKSPACE%/installer/product.wxs  -o %WORKSPACE%/installer/calculatorCppApp.msi"
+                //     '''
+                // }
                 
                 stash name: 'installer-msi', includes: 'installer/calculatorCppApp.msi'
             }
