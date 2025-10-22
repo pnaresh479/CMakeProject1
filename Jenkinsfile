@@ -187,9 +187,10 @@ pipeline {
                     echo 'unstashing previous step output here...'
                     unstash 'cpp-build-output'
                 }
-                directory('installer') {
+                dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.WIX_PATH}"]) {
                         bat '''
+                            echo current directory is... : %CD% 
                             dir
                             wix build product.wxs  -o calculatorCppApp.msi"
                         '''
