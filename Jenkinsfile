@@ -276,7 +276,7 @@ pipeline {
         stage('Archive') {
             steps {
                 unstash 'installer-msi'
-                archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
+                archiveArtifacts artifacts: "${INSTALLER_PATH}/calculatorCppApp.msi", fingerprint: true
             }
         }
 
