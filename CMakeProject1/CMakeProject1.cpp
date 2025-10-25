@@ -1,26 +1,8 @@
-﻿// CMakeProject1.cpp : Defines the entry point for the application.
-//
-
-#include "CMakeProject1.h"
-
+﻿#include <iostream>
+#include <stdexcept>
+#include <thread>
+#include <chrono>
 using namespace std;
-
-double Calculator::add(double a, double b) {
-    return a + b;
-}
-
-double Calculator::subtract(double a, double b) {
-    return a - b;
-}
-
-double Calculator::multiply(double a, double b) {
-    return a * b;
-}
-
-double Calculator::divide(double a, double b) {
-    if (b == 0) throw invalid_argument("Division by zero");
-    return a / b;
-}
 
 int main() {
     Calculator calc;
@@ -43,9 +25,12 @@ int main() {
             default: cout << "Invalid choice." << endl; return 1;
         }
         cout << "Result: " << result << endl;
+
+        // Sleep for 20 seconds
+        std::this_thread::sleep_for(std::chrono::seconds(20));
     } catch (const exception& ex) {
         cout << "Error: " << ex.what() << endl;
         return 1;
     }
-    return 0;
+    return 0;
 }
