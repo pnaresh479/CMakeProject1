@@ -235,8 +235,6 @@ pipeline {
                     bat 'dir'
                     archiveArtifacts artifacts: "calculatorCppApp.msi", fingerprint: true
                 }
-                // unstash 'installer-msi'
-                // archiveArtifacts artifacts: "${INSTALLER_PATH}/calculatorCppApp.msi", fingerprint: true
             }
         }
 
