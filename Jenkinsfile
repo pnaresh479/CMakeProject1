@@ -245,12 +245,14 @@ pipeline {
         stage('code sign the installaer..') {
             // when { expression { retun param.SIGN == true } }
             steps {
-                echo 'Signing the installer using SignTool...'
-                dir("${INSTALLER_PATH}") {
-                    withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
-                        bat """
-                            signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${SIGN_PFX_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "calculatorCppApp.msi"
-                            """
+                withCredentials([string(credentialsId: 'codesign-password', variable: 'CODE_SIGN_PASSWORD')]) 
+                    echo 'Signing the installer using SignTool...'
+                    dir("${INSTALLER_PATH}") {
+                        withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
+                            bat """
+                                signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${CODE_SIGN_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "calculatorCppApp.msi"
+                                """
+                        }
                     }
                 }
             }
