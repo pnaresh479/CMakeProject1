@@ -26,7 +26,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'SONAR_SCAN', defaultValue: false, description: 'Run SonarQube scan')
-        booleanParam(name: 'SIGN', defaultValue: false, description: 'Sign installer using provided PFX')
+        // booleanParam(name: 'SIGN', defaultValue: false, description: 'Sign installer using provided PFX')
         booleanParam(name: 'PUBLISH', defaultValue: false, description: 'Publish artifacts after build')
     }
 
@@ -246,7 +246,7 @@ pipeline {
             // when { expression { retun param.SIGN == true } }
             steps {
                 echo 'Signing the installer using SignTool...'
-                dir('${INSTALLER_PATH}') {
+                dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
                         bat """
                             signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${SIGN_PFX_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "calculatorCppApp.msi"
@@ -260,7 +260,7 @@ pipeline {
             // when { expression { return param.SIGN == true } }
             steps {
                 echo 'Verifying the signed installer...'
-                dir('${INSTALLER_PATH}') {
+                dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
                         bat '''
                             signtool verify /pa /v "calculatorCppApp.msi"
