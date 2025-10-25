@@ -266,8 +266,10 @@ pipeline {
                             signtool verify /pa /v "calculatorCppApp.msi"
                             '''
                     }
+                }
             }
         }
+
 
         stage('Archive') {
             steps {
