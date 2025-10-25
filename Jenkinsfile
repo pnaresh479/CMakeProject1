@@ -111,20 +111,6 @@ pipeline {
             }
         }
 
-        // stage('Build Wrapper for SonarQube') {
-        //     when { expression { return params.SONAR_SCAN == true } }
-        //     steps {
-        //         echo '🏗️ Generating compile_commands.json for SonarQube CFamily...'
-        //         dir("${APP_PATH}") {
-        //             withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.BUILD_WRAPPER_PATH};${env.GCC}"]) {
-        //             bat '''
-        //                 build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build build
-        //             '''
-        //             }
-        //         }
-        //     }
-        // }
-
         stage('SonarQube Analysis') {
             when { expression { return params.SONAR_SCAN == true } }
             steps {
@@ -160,7 +146,6 @@ pipeline {
         }
 
         stage('Binary copy') {
-            agent { label 'built-in' }
             steps {
                 // Ensure the output directory exists
                 script {
@@ -181,7 +166,6 @@ pipeline {
         }
 
         stage('Package (WiX)') {
-            agent { label 'built-in' }
             steps {
                 // Ensure the output directory exists
                 script {
@@ -198,49 +182,9 @@ pipeline {
                         '''
                     }
                 }
-                
-                // bat '''
-                //     if not exist "%WORKSPACE%\\installer" mkdir "%WORKSPACE%\\installer"
-                // '''
-                // bat 'dir "%WORKSPACE%\\CMakeProject1\\build\\CMakeProject1.exe"'
-                
-                // // Run WiX build from the workspace root so relative paths work correctly
-                // withEnv(["PATH=${env.PATH};${env.WIX_PATH};${env.DOTNET_PATH}"]) {
-                //     bat '''
-                //         echo "Building MSI installer..."
-                //         echo "Current directory: %CD%"
-                //         echo "Checking source exe exists..."
-                //         wix build -src %WORKSPACE%/installer/product.wxs  -o %WORKSPACE%/installer/calculatorCppApp.msi"
-                //     '''
-                // }
-                
                 stash name: 'installer-msi', includes: 'installer/calculatorCppApp.msi'
             }
         }
-
-        // stage('Code Sign (Windows)') {
-        //     agent { label 'built-in' }
-        //     when { expression { return params.SIGN == true } }
-        //     steps {
-        //         script {
-        //             withCredentials([
-        //                 file(credentialsId: 'SIGN_PFX', variable: 'SIGN_PFX_FILE'),
-        //                 string(credentialsId: 'SIGN_PFX_PASSWORD', variable: 'SIGN_PFX_PASSWORD')
-        //             ]) {
-        //                 unstash 'installer-msi'
-        //                 powershell """
-        //                     & "$env:ProgramFiles\\Windows Kits\\10\\bin\\x64\\signtool.exe" sign `
-        //                         /f "${SIGN_PFX_FILE}" `
-        //                         /p "${SIGN_PFX_PASSWORD}" `
-        //                         /tr http://timestamp.digicert.com `
-        //                         /td sha256 `
-        //                         /fd sha256 `
-        //                         "${INSTALLER_PATH}\\calculatorCppApp.msi"
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
 
         stage('code sign the installaer..') {
             when { expression { return params.SIGN == true } }
@@ -291,14 +235,6 @@ pipeline {
             }
         }
 
-        // stage('Archive Artifacts') {
-        //     steps {
-        //         echo '🗄️ Archiving installer output...'
-        //         // dir("${INSTALLER_PATH}") {
-        //         archiveArtifacts artifacts: 'installer/*.msi', fingerprint: true
-        //         // }
-        //     }
-        // }
 
         stage('Publish (Optional)') {
             when { expression { return params.PUBLISH == true } }
