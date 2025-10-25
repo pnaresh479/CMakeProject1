@@ -7,12 +7,12 @@ pipeline {
         NNJA_PATH          = "C:/DevTools/ninja1_12_1"
         GCC                = "C:/DevTools/mingw-w64/mingw64/bin"
         BUILD_WRAPPER_PATH = "C:/DevTools/sonar-cpp-build-wrapper/build-wrapper-win-x86"
-        SONARQUBE_SERVER   = 'sonarcloud'
-        PROJECT_KEY        = 'CMakeProject1'
-        ORGANIZATION       = 'pnaresh479'
-        BUILD_CONFIG       = 'Release'
-        APP_PATH           = 'CMakeProject1'
-        INSTALLER_PATH     = 'installer'
+        SONARQUBE_SERVER   = "sonarcloud"
+        PROJECT_KEY        = "CMakeProject1"
+        ORGANIZATION       = "pnaresh479"
+        BUILD_CONFIG       = "Release"
+        APP_PATH           = "CMakeProject1"
+        INSTALLER_PATH     = "installer"
         SONAR_CLI_PATH     = "C:/DevTools/sonar-cli/sonar-scanner-7.2.0.5079-windows-x64/bin"
         DOTNET_PATH        = "C:/Program Files/dotnet/dotnet.exe"
         CODE_SIGN_CERT     = "C://code-sign-certificates"  
@@ -26,7 +26,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'SONAR_SCAN', defaultValue: false, description: 'Run SonarQube scan')
-        // booleanParam(name: 'SIGN', defaultValue: false, description: 'Sign installer using provided PFX')
+        booleanParam(name: 'SIGN', defaultValue: false, description: 'Sign installer using provided PFX')
         booleanParam(name: 'PUBLISH', defaultValue: false, description: 'Publish artifacts after build')
     }
 
@@ -243,9 +243,9 @@ pipeline {
         // }
 
         stage('code sign the installaer..') {
-            // when { expression { retun param.SIGN == true } }
+            when { expression { return params.SIGN == true } }
             steps {
-                withCredentials([string(credentialsId: 'codesign-password', variable: 'CODE_SIGN_PASSWORD')]) 
+                withCredentials([string(credentialsId: 'codesign-password', variable: 'CODE_SIGN_PASSWORD')]) {
                     echo 'Signing the installer using SignTool...'
                     dir("${INSTALLER_PATH}") {
                         withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
@@ -259,7 +259,7 @@ pipeline {
         }
 
         stage('verification of signed installer') {
-            // when { expression { return param.SIGN == true } }
+            when { expression { return params.SIGN == true } }
             steps {
                 echo 'Verifying the signed installer...'
                 dir("${INSTALLER_PATH}") {
