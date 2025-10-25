@@ -244,6 +244,10 @@ pipeline {
 
         stage('code sign the installaer..') {
             when { expression { return params.SIGN == true } }
+            script {
+                echo 'Preparing to sign the installer...'
+                unstash 'cpp-build-output'
+            }
             steps {
                 withCredentials([string(credentialsId: 'codesign-password', variable: 'CODE_SIGN_PASSWORD')]) {
                     echo 'Signing the installer using SignTool...'
@@ -252,7 +256,6 @@ pipeline {
                             bat """
                              echo current directory is... : %CD%
                              dir
-                             unstash 'installer-msi'
                              signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${CODE_SIGN_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "calculatorCppApp.msi"
                             """
                         }
@@ -263,12 +266,15 @@ pipeline {
 
         stage('verification of signed installer') {
             when { expression { return params.SIGN == true } }
+            script {
+                echo 'Preparing to sign the installer...'
+                unstash 'cpp-build-output'
+            }
             steps {
                 echo 'Verifying the signed installer...'
                 dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
                         bat """
-                            unstash 'installer-msi'
                             signtool verify /pa /v "calculatorCppApp.msi"
                             """
                     }
