@@ -244,11 +244,12 @@ pipeline {
 
         stage('code sign the installaer..') {
             when { expression { return params.SIGN == true } }
-            script {
-                echo 'Preparing to sign the installer...'
-                unstash 'cpp-build-output'
-            }
+            
             steps {
+                script {
+                    echo 'Preparing to sign the installer...'
+                    unstash 'cpp-build-output'
+                }
                 withCredentials([string(credentialsId: 'codesign-password', variable: 'CODE_SIGN_PASSWORD')]) {
                     echo 'Signing the installer using SignTool...'
                     dir("${INSTALLER_PATH}") {
@@ -266,11 +267,11 @@ pipeline {
 
         stage('verification of signed installer') {
             when { expression { return params.SIGN == true } }
-            script {
-                echo 'Preparing to sign the installer...'
-                unstash 'cpp-build-output'
-            }
             steps {
+                script {
+                    echo 'Preparing to sign the installer...'
+                    unstash 'cpp-build-output'
+                }
                 echo 'Verifying the signed installer...'
                 dir("${INSTALLER_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
