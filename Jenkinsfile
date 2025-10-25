@@ -230,8 +230,13 @@ pipeline {
 
         stage('Archive') {
             steps {
-                unstash 'installer-msi'
-                archiveArtifacts artifacts: "${INSTALLER_PATH}/calculatorCppApp.msi", fingerprint: true
+                dir("${INSTALLER_PATH}") {
+                    echo 'Archiving the MSI installer...'
+                    bat 'dir'
+                    archiveArtifacts artifacts: "calculatorCppApp.msi", fingerprint: true
+                }
+                // unstash 'installer-msi'
+                // archiveArtifacts artifacts: "${INSTALLER_PATH}/calculatorCppApp.msi", fingerprint: true
             }
         }
 
