@@ -243,7 +243,7 @@ pipeline {
         // }
 
         stage('code sign the installaer..') {
-            when { expression { retun param.SIGN == true } }
+            // when { expression { retun param.SIGN == true } }
             steps {
                 echo 'Signing the installer using SignTool...'
                 dir('${INSTALLER_PATH}') {
@@ -257,7 +257,7 @@ pipeline {
         }
 
         stage('verification of signed installer') {
-            when { expression { return param.SIGN == true } }
+            // when { expression { return param.SIGN == true } }
             steps {
                 echo 'Verifying the signed installer...'
                 dir('${INSTALLER_PATH}') {
