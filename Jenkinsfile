@@ -4,7 +4,7 @@ pipeline {
     environment {
         WIX_PATH           = "C:/users/admin/.dotnet/tools"
         CMAKE_PATH         = "C:/DevTools/CMake3_39_1/bin"
-        NNJA_PATH         = "C:/DevTools/ninja1_12_1"
+        NNJA_PATH          = "C:/DevTools/ninja1_12_1"
         GCC                = "C:/DevTools/mingw-w64/mingw64/bin"
         BUILD_WRAPPER_PATH = "C:/DevTools/sonar-cpp-build-wrapper/build-wrapper-win-x86"
         SONARQUBE_SERVER   = 'sonarcloud'
@@ -15,6 +15,8 @@ pipeline {
         INSTALLER_PATH     = 'installer'
         SONAR_CLI_PATH     = "C:/DevTools/sonar-cli/sonar-scanner-7.2.0.5079-windows-x64/bin"
         DOTNET_PATH        = "C:/Program Files/dotnet/dotnet.exe"
+        CODE_SIGN_CERT     = "C://code-sign-certificates"  
+        SIGN_TOOL_PATH     = "C://Program Files (x86)//Windows Kits//10//bin//10.0.19041.0//x64"
     }
 
     options {
@@ -216,45 +218,72 @@ pipeline {
             }
         }
 
-        stage('Code Sign (Windows)') {
-            agent { label 'built-in' }
-            when { expression { return params.SIGN == true } }
+        // stage('Code Sign (Windows)') {
+        //     agent { label 'built-in' }
+        //     when { expression { return params.SIGN == true } }
+        //     steps {
+        //         script {
+        //             withCredentials([
+        //                 file(credentialsId: 'SIGN_PFX', variable: 'SIGN_PFX_FILE'),
+        //                 string(credentialsId: 'SIGN_PFX_PASSWORD', variable: 'SIGN_PFX_PASSWORD')
+        //             ]) {
+        //                 unstash 'installer-msi'
+        //                 powershell """
+        //                     & "$env:ProgramFiles\\Windows Kits\\10\\bin\\x64\\signtool.exe" sign `
+        //                         /f "${SIGN_PFX_FILE}" `
+        //                         /p "${SIGN_PFX_PASSWORD}" `
+        //                         /tr http://timestamp.digicert.com `
+        //                         /td sha256 `
+        //                         /fd sha256 `
+        //                         "${INSTALLER_PATH}\\calculatorCppApp.msi"
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
+
+        stage('code sign the installaer..') {
+            when { expression { retun param.SIGN == true } }
             steps {
-                script {
-                    withCredentials([
-                        file(credentialsId: 'SIGN_PFX', variable: 'SIGN_PFX_FILE'),
-                        string(credentialsId: 'SIGN_PFX_PASSWORD', variable: 'SIGN_PFX_PASSWORD')
-                    ]) {
-                        unstash 'installer-msi'
-                        powershell """
-                            & "$env:ProgramFiles\\Windows Kits\\10\\bin\\x64\\signtool.exe" sign `
-                                /f "${SIGN_PFX_FILE}" `
-                                /p "${SIGN_PFX_PASSWORD}" `
-                                /tr http://timestamp.digicert.com `
-                                /td sha256 `
-                                /fd sha256 `
-                                "${INSTALLER_PATH}\\calculatorCppApp.msi"
-                        """
+                echo 'Signing the installer using SignTool...'
+                dir('${INSTALLER_PATH}') {
+                    withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
+                        bat """
+                            signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${SIGN_PFX_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "calculatorCppApp.msi"
+                            """
                     }
                 }
             }
         }
 
-        // stage('Archive') {
-        //     steps {
-        //         unstash 'installer-msi'
-        //         archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
-        //     }
-        // }
-
-        stage('Archive Artifacts') {
+        stage('verification of signed installer') {
+            when { expression { return param.SIGN == true } }
             steps {
-                echo '🗄️ Archiving installer output...'
-                // dir("${INSTALLER_PATH}") {
-                archiveArtifacts artifacts: 'installer/*.msi', fingerprint: true
-                // }
+                echo 'Verifying the signed installer...'
+                dir('${INSTALLER_PATH}') {
+                    withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
+                        bat '''
+                            signtool verify /pa /v "calculatorCppApp.msi"
+                            '''
+                    }
             }
         }
+
+        stage('Archive') {
+            steps {
+                unstash 'installer-msi'
+                archiveArtifacts artifacts: "${INSTALLER_PATH}/calculcatorcplusapp.msi", fingerprint: true
+            }
+        }
+
+        // stage('Archive Artifacts') {
+        //     steps {
+        //         echo '🗄️ Archiving installer output...'
+        //         // dir("${INSTALLER_PATH}") {
+        //         archiveArtifacts artifacts: 'installer/*.msi', fingerprint: true
+        //         // }
+        //     }
+        // }
 
         stage('Publish (Optional)') {
             when { expression { return params.PUBLISH == true } }
