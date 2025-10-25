@@ -250,8 +250,10 @@ pipeline {
                     dir("${INSTALLER_PATH}") {
                         withEnv(["PATH=${env.PATH};${env.SIGN_TOOL_PATH}"]) {
                             bat """
-                                signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${CODE_SIGN_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "calculatorCppApp.msi"
-                                """
+                             echo current directory is... : %CD%
+                             dir
+                             signtool sign /f "${env.CODE_SIGN_CERT}/my_cert.pfx" /p "${CODE_SIGN_PASSWORD}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "%WORKSPACE%//installer//calculatorCppApp.msi"
+                            """
                         }
                     }
                 }
