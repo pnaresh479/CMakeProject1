@@ -39,7 +39,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo '📦 Checking out code from GitHub...'
+                echo 'Checking out code from GitHub...'
                 git branch: 'main', url: 'https://github.com/pnaresh479/CMakeProject1.git'
             }
         }
@@ -64,7 +64,7 @@ pipeline {
 
         stage('verify Compiler') {
             steps {
-                echo '🔧 Verifying GCC/G++ installation...'
+                echo 'Verifying GCC/G++ installation...'
                 withEnv(["PATH=${env.PATH};${env.GCC}"]) {
                 bat '''
                     gcc --version
@@ -75,7 +75,7 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                echo '🏗️ Building the C++ project...'
+                echo 'Building the C++ project...'
                 dir("${APP_PATH}") {
                     withEnv(["PATH=${env.PATH};${env.CMAKE_PATH};${env.NNJA_PATH};${env.GCC};${env.BUILD_WRAPPER_PATH}"]) {
                     bat '''
@@ -114,7 +114,7 @@ pipeline {
         stage('SonarQube Analysis') {
             when { expression { return params.SONAR_SCAN == true } }
             steps {
-                echo '🔍 Running SonarQube analysis...'
+                echo 'Running SonarQube analysis...'
                 dir("${APP_PATH}") {
                     withCredentials([string(credentialsId: 'sonarcloud-token', variable: 'SONAR_TOKEN')]) {
                         withEnv(["PATH=${env.PATH};${env.SONAR_CLI_PATH}"]) {
@@ -138,7 +138,7 @@ pipeline {
 
         stage('Display Build Artifacts') {
             steps {
-                echo '📂 Displaying build artifacts...'
+                echo 'Displaying build artifacts...'
                 dir("${APP_PATH}/build/CMakeProject1/Release") {
                     bat 'dir'
                 }
@@ -149,7 +149,7 @@ pipeline {
             steps {
                 // Ensure the output directory exists
                 script {
-                    echo '📦 Packaging application into MSI installer using WiX...'
+                    echo 'Packaging application into MSI installer using WiX...'
                     echo 'unstashing previous step output here...'
                     unstash 'cpp-build-output'
                 }
@@ -169,7 +169,7 @@ pipeline {
             steps {
                 // Ensure the output directory exists
                 script {
-                    echo '📦 Packaging application into MSI installer using WiX...'
+                    echo 'Packaging application into MSI installer using WiX...'
                     echo 'unstashing previous step output here...'
                     unstash 'cpp-build-output'
                 }
@@ -253,10 +253,10 @@ pipeline {
             // cleanWs()
         }
         success {
-            echo '✅ Build completed successfully.'
+            echo 'Build completed successfully.'
         }
         failure {
-            echo '❌ Build failed. See logs for details.'
+            echo 'Build failed. See logs for details.'
         }
     }
 }
